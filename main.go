@@ -3,16 +3,10 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"news_rest_api/entity"
 
 	_ "github.com/go-sql-driver/mysql"
 )
-
-type Post struct {
-	ID         int    `json:"id"`
-	Title      string `json:"PostTitle"`
-	PostDetail string `json:"PostDetails"`
-	PostImage  string `json:"PostImage"`
-}
 
 func main() {
 
@@ -21,7 +15,7 @@ func main() {
 
 	fmt.Println("----------------")
 
-	results, _ := executeQuery("SELECT id,PostTitle, PostDetails, PostImage from tblposts", db)
+	results, _ := executeQuery("SELECT id,PostTitle,CategoryId, PostDetails, PostImage from tblposts", db)
 	defer results.Close()
 
 	posts, err := populateStruct(results)
@@ -59,11 +53,11 @@ func executeQuery(query string, db *sql.DB) (result *sql.Rows, err error) {
 	return
 }
 
-func populateStruct(result *sql.Rows) (postStruct []Post, err error) {
+func populateStruct(result *sql.Rows) (postStruct []entity.Post, err error) {
 	for result.Next() {
-		var post Post
+		var post entity.Post
 
-		err := result.Scan(&post.ID, &post.Title, &post.PostDetail, &post.PostImage)
+		err := result.Scan(&post.ID, &post.Title, &post.CategoryID, &post.PostDetail, &post.PostImage)
 
 		if err != nil {
 			panic(err.Error())
