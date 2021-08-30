@@ -1,69 +1,22 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
-	"news_rest_api/entity"
+	"net/http"
+
+	"news_rest_api/handler"
 
 	_ "github.com/go-sql-driver/mysql"
 )
 
 func main() {
 
-	db, _ := connect("mysql", "root:@tcp(127.0.0.1:3306)/newsportal")
-	defer db.Close()
+	mux := http.NewServeMux()
 
-	fmt.Println("----------------")
+	mux.HandleFunc("/article", handler.ArticleHandler)
 
-	results, _ := executeQuery("SELECT id,PostTitle,CategoryId, PostDetails, PostImage from tblposts", db)
-	defer results.Close()
+	fmt.Print("Start Serving in port 8000")
+	err := http.ListenAndServe(":8000", mux)
+	fmt.Print("Error : ", err)
 
-	posts, err := populateStruct(results)
-
-	if err != nil {
-		panic(err.Error())
-	}
-
-	for _, post := range posts {
-		fmt.Println("id : ", post.ID)
-		fmt.Println("title : ", post.Title)
-		fmt.Println("body : ", post.PostDetail)
-		fmt.Println("image : ", post.PostImage)
-	}
-}
-
-func connect(driver string, databaseSource string) (db *sql.DB, err error) {
-	db, err = sql.Open(driver, databaseSource)
-	fmt.Println("Try Connecting to MySQL")
-	if err != nil {
-		panic(err.Error())
-	}
-
-	fmt.Println("Connected")
-	return
-}
-
-func executeQuery(query string, db *sql.DB) (result *sql.Rows, err error) {
-	fmt.Println("Try executing query")
-	result, err = db.Query(query)
-	if err != nil {
-		panic(err.Error())
-	}
-	fmt.Println("Succes")
-	return
-}
-
-func populateStruct(result *sql.Rows) (postStruct []entity.Post, err error) {
-	for result.Next() {
-		var post entity.Post
-
-		err := result.Scan(&post.ID, &post.Title, &post.CategoryID, &post.PostDetail, &post.PostImage)
-
-		if err != nil {
-			panic(err.Error())
-		}
-
-		postStruct = append(postStruct, post)
-	}
-	return
 }
