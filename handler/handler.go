@@ -20,7 +20,7 @@ func ArticleHandler(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 
 		//executing query
-		results, _ := database.ExecuteQuery("SELECT id,PostTitle,CategoryId, PostDetails, PostImage from tblposts", db)
+		results, _ := database.ExecuteQuery("SELECT tblposts.id,tblposts.PostTitle, tblcategory.CategoryName, tblposts.PostDetails, tblposts.PostImage from tblposts JOIN tblcategory ON tblcategory.id = tblposts.CategoryId", db)
 		defer results.Close()
 
 		//convert *sql.Rows data to JSON
