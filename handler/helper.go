@@ -26,9 +26,9 @@ func CheckStatusAndConvertingCategoryResult(result *sql.Rows, err error, w *http
 		http.Error(*w, "Error when posting data", http.StatusInternalServerError)
 	}
 
-	postModel, _ := database.PopulateRowsToCategory(result)
+	categoriesModel, _ := database.PopulateRowsToCategory(result)
 
-	jsonData, errConv := json.Marshal(postModel)
+	jsonData, errConv := json.Marshal(categoriesModel)
 	if errConv != nil {
 		http.Error(*w, "Error when converting data to json", http.StatusInternalServerError)
 	}

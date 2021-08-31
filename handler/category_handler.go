@@ -18,7 +18,7 @@ func CategoyHandler(w http.ResponseWriter, r *http.Request) {
 	switch method {
 
 	case "GET":
-		results, _ := database.ExecuteQuery("SELECT * from tblcategory", db)
+		results, _ := database.ExecuteQuery("SELECT id, CategoryName from tblcategory", db)
 		defer results.Close()
 
 		//convert *sql.Rows data to Struct

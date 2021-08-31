@@ -44,6 +44,19 @@ func PopulateRowsToArticle(result *sql.Rows) (postStruct []entity.Article, err e
 	return
 }
 
-func PopulateRowsToCategory(result *sql.Rows) (postStruct []entity.Category, err error) {
+func PopulateRowsToCategory(result *sql.Rows) (categoriesStruct []entity.Category, err error) {
+
+	for result.Next() {
+		var category entity.Category
+
+		err := result.Scan(&category.ID, &category.CategoryName)
+
+		if err != nil {
+			panic(err.Error())
+		}
+
+		categoriesStruct = append(categoriesStruct, category)
+	}
+
 	return
 }

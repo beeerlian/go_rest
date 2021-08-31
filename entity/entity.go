@@ -9,6 +9,6 @@ type Article struct {
 }
 
 type Category struct {
-	ID           int    `json:"Id"`
+	ID           int    `json:"id"`
 	CategoryName string `json:"CategoryName"`
 }
