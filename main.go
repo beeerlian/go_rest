@@ -14,6 +14,7 @@ func main() {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/article", handler.ArticleHandler)
+	mux.HandleFunc("/category", handler.CategoyHandler)
 
 	fmt.Print("Start Serving in port 8000")
 	err := http.ListenAndServe(":8000", mux)
