@@ -4,16 +4,31 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
-
-	"github.com/bdwilliams/go-jsonify/jsonify"
+	"news_rest_api/database"
 )
 
-func CheckStatusAndConvertingTheResult(result *sql.Rows, err error, w *http.ResponseWriter) (jsonData []byte) {
+func CheckStatusAndConvertingArticleResult(result *sql.Rows, err error, w *http.ResponseWriter) (jsonData []byte) {
 	if err != nil {
 		http.Error(*w, "Error when posting data", http.StatusInternalServerError)
 	}
 
-	jsonData, errConv := json.Marshal(jsonify.Jsonify(result))
+	postModel, _ := database.PopulateRowsToArticle(result)
+
+	jsonData, errConv := json.Marshal(postModel)
+	if errConv != nil {
+		http.Error(*w, "Error when converting data to json", http.StatusInternalServerError)
+	}
+	return
+}
+
+func CheckStatusAndConvertingCategoryResult(result *sql.Rows, err error, w *http.ResponseWriter) (jsonData []byte) {
+	if err != nil {
+		http.Error(*w, "Error when posting data", http.StatusInternalServerError)
+	}
+
+	postModel, _ := database.PopulateRowsToCategory(result)
+
+	jsonData, errConv := json.Marshal(postModel)
 	if errConv != nil {
 		http.Error(*w, "Error when converting data to json", http.StatusInternalServerError)
 	}

@@ -4,12 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 	"news_rest_api/database"
-
-	"github.com/bdwilliams/go-jsonify/jsonify"
 )
 
 func ArticleHandler(w http.ResponseWriter, r *http.Request) {
-
 	//connect to db
 	db, _ := database.Connect("mysql", "root:@tcp(127.0.0.1:3306)/newsportal")
 	defer db.Close()
@@ -18,21 +15,18 @@ func ArticleHandler(w http.ResponseWriter, r *http.Request) {
 
 	switch method {
 	case "GET":
-
 		//executing query
 		results, _ := database.ExecuteQuery("SELECT tblposts.id,tblposts.PostTitle, tblcategory.CategoryName, tblposts.PostDetails, tblposts.PostImage from tblposts JOIN tblcategory ON tblcategory.id = tblposts.CategoryId", db)
 		defer results.Close()
-
-		//convert *sql.Rows data to JSON
-		jsonData, err := json.Marshal(jsonify.Jsonify(results))
-
+		//convert *sql.Rows data to Struct
+		postModel, _ := database.PopulateRowsToArticle(results)
+		//convert data in struct model to json
+		jsonData, err := json.Marshal(postModel)
 		if err != nil {
 			http.Error(w, "Cannot Get Data", http.StatusInternalServerError)
 			break
 		}
-
 		w.Write([]byte(jsonData))
-
 	case "POST":
 		//get url paramaters
 		title := r.URL.Query().Get("title")
@@ -49,7 +43,7 @@ func ArticleHandler(w http.ResponseWriter, r *http.Request) {
 			}
 			defer result.Close()
 
-			jsonData := CheckStatusAndConvertingTheResult(result, err, &w)
+			jsonData := CheckStatusAndConvertingArticleResult(result, err, &w)
 
 			w.Write([]byte(jsonData))
 		}
@@ -63,7 +57,7 @@ func ArticleHandler(w http.ResponseWriter, r *http.Request) {
 		image := r.URL.Query().Get("image")
 
 		if id != "" && categoryId != "" && image != "" {
-			updateQuery := "UPDATE `tblposts` SET `CategoryId` = '" + categoryId + "',`PostImage` = " + image + " WHERE `tblposts`.`id` = " + id + ""
+			updateQuery := "UPDATE `tblposts` SET `CategoryId` = '" + categoryId + "',`PostImage` = " + image + ", `UpdationDate` = current_timestamp() WHERE `tblposts`.`id` = " + id + ""
 
 			result, err := database.ExecuteQuery(updateQuery, db)
 			if err != nil {
@@ -71,7 +65,7 @@ func ArticleHandler(w http.ResponseWriter, r *http.Request) {
 			}
 			defer result.Close()
 
-			jsonData := CheckStatusAndConvertingTheResult(result, err, &w)
+			jsonData := CheckStatusAndConvertingArticleResult(result, err, &w)
 
 			w.Write([]byte(jsonData))
 		}
@@ -81,7 +75,6 @@ func ArticleHandler(w http.ResponseWriter, r *http.Request) {
 	case "DELETE":
 
 		id := r.URL.Query().Get("id")
-
 		if id != "" {
 			updateQuery := "DELETE FROM `tblposts` WHERE `tblposts`.`id` = " + id + ""
 
@@ -91,7 +84,7 @@ func ArticleHandler(w http.ResponseWriter, r *http.Request) {
 			}
 			defer result.Close()
 
-			jsonData := CheckStatusAndConvertingTheResult(result, err, &w)
+			jsonData := CheckStatusAndConvertingArticleResult(result, err, &w)
 
 			w.Write([]byte(jsonData))
 		}

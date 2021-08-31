@@ -5,8 +5,6 @@ import (
 	"net/http"
 	"news_rest_api/database"
 	"strconv"
-
-	"github.com/bdwilliams/go-jsonify/jsonify"
 )
 
 func CategoyHandler(w http.ResponseWriter, r *http.Request) {
@@ -23,8 +21,10 @@ func CategoyHandler(w http.ResponseWriter, r *http.Request) {
 		results, _ := database.ExecuteQuery("SELECT * from tblcategory", db)
 		defer results.Close()
 
-		//convert *sql.Rows data to JSON
-		jsonData, err := json.Marshal(jsonify.Jsonify(results))
+		//convert *sql.Rows data to Struct
+		categoriesData, _ := database.PopulateRowsToCategory(results)
+		//convert data in struct model to json
+		jsonData, err := json.Marshal(categoriesData)
 
 		if err != nil {
 			http.Error(w, "Cannot Get Data", http.StatusInternalServerError)
@@ -46,11 +46,8 @@ func CategoyHandler(w http.ResponseWriter, r *http.Request) {
 			if err == nil && isActive < 2 && isActive > -1 {
 
 				postQuery := "INSERT INTO tblcategory (CategoryName, Description, PostingDate, UpdationDate, Is_Active) VALUES ('" + name + "', '" + description + "', current_timestamp(), NULL, '" + isActiveString + "')"
-
 				result, errQuery := database.ExecuteQuery(postQuery, db)
-
-				jsonData := CheckStatusAndConvertingTheResult(result, errQuery, &w)
-
+				jsonData := CheckStatusAndConvertingCategoryResult(result, errQuery, &w)
 				w.Write([]byte(jsonData))
 
 			}

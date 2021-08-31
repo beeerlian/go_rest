@@ -29,11 +29,11 @@ func ExecuteQuery(query string, db *sql.DB) (result *sql.Rows, err error) {
 	return
 }
 
-func PopulateToStruct(result *sql.Rows) (postStruct []entity.Post, err error) {
+func PopulateRowsToArticle(result *sql.Rows) (postStruct []entity.Article, err error) {
 	for result.Next() {
-		var post entity.Post
+		var post entity.Article
 
-		err := result.Scan(&post.ID, &post.Title, &post.CategoryID, &post.PostDetail, &post.PostImage)
+		err := result.Scan(&post.ID, &post.Title, &post.CategoryName, &post.PostDetail, &post.PostImage)
 
 		if err != nil {
 			panic(err.Error())
@@ -41,5 +41,9 @@ func PopulateToStruct(result *sql.Rows) (postStruct []entity.Post, err error) {
 
 		postStruct = append(postStruct, post)
 	}
+	return
+}
+
+func PopulateRowsToCategory(result *sql.Rows) (postStruct []entity.Category, err error) {
 	return
 }
