@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
-	"news_rest_api/database"
+	"news_rest_api_gorilla_mux/database"
 )
 
 func CheckStatusAndConvertingArticleResult(result *sql.Rows, err error, w *http.ResponseWriter) (jsonData []byte) {

@@ -3,7 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
-	"news_rest_api/database"
+	"news_rest_api_gorilla_mux/database"
 	"strconv"
 )
 
@@ -31,7 +31,7 @@ func CategoyHandler(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 
-		w.Write([]byte(jsonData))
+		w.Write(jsonData)
 	case "POST":
 		name := r.URL.Query().Get("name")
 		description := r.URL.Query().Get("desc")
@@ -48,7 +48,8 @@ func CategoyHandler(w http.ResponseWriter, r *http.Request) {
 				postQuery := "INSERT INTO tblcategory (CategoryName, Description, PostingDate, UpdationDate, Is_Active) VALUES ('" + name + "', '" + description + "', current_timestamp(), NULL, '" + isActiveString + "')"
 				result, errQuery := database.ExecuteQuery(postQuery, db)
 				jsonData := CheckStatusAndConvertingCategoryResult(result, errQuery, &w)
-				w.Write([]byte(jsonData))
+
+				w.Write(jsonData)
 
 			}
 

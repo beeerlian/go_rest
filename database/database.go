@@ -3,7 +3,7 @@ package database
 import (
 	"database/sql"
 	"fmt"
-	"news_rest_api/entity"
+	"news_rest_api_gorilla_mux/entity"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -25,7 +25,7 @@ func ExecuteQuery(query string, db *sql.DB) (result *sql.Rows, err error) {
 	if err != nil {
 		panic(err.Error())
 	}
-	fmt.Println("Succes")
+	fmt.Println("Query Succes")
 	return
 }
 

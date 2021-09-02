@@ -2,11 +2,14 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
-	"news_rest_api/database"
+	"news_rest_api_gorilla_mux/database"
+	"news_rest_api_gorilla_mux/entity"
 )
 
 func ArticleHandler(w http.ResponseWriter, r *http.Request) {
+	setupCorsResponse(&w, r)
 	//connect to db
 	db, _ := database.Connect("mysql", "root:@tcp(127.0.0.1:3306)/newsportal")
 	defer db.Close()
@@ -19,14 +22,18 @@ func ArticleHandler(w http.ResponseWriter, r *http.Request) {
 		results, _ := database.ExecuteQuery("SELECT tblposts.id,tblposts.PostTitle, tblcategory.CategoryName, tblposts.PostDetails, tblposts.PostImage from tblposts JOIN tblcategory ON tblcategory.id = tblposts.CategoryId", db)
 		defer results.Close()
 		//convert *sql.Rows data to Struct
+		fmt.Print("try populating data")
+
 		postModel, _ := database.PopulateRowsToArticle(results)
 		//convert data in struct model to json
-		jsonData, err := json.Marshal(postModel)
+		finalData := map[string][]entity.Article{"data": postModel}
+		jsonData, err := json.Marshal(finalData)
 		if err != nil {
 			http.Error(w, "Cannot Get Data", http.StatusInternalServerError)
-			break
+			return
 		}
-		w.Write([]byte(jsonData))
+		fmt.Print("Procees success, returning json data")
+		w.Write(jsonData)
 	case "POST":
 		//get url paramaters
 		title := r.URL.Query().Get("title")
@@ -45,7 +52,7 @@ func ArticleHandler(w http.ResponseWriter, r *http.Request) {
 
 			jsonData := CheckStatusAndConvertingArticleResult(result, err, &w)
 
-			w.Write([]byte(jsonData))
+			w.Write(jsonData)
 		}
 
 		http.Error(w, "Paramater Not Correct", http.StatusBadRequest)
@@ -67,7 +74,7 @@ func ArticleHandler(w http.ResponseWriter, r *http.Request) {
 
 			jsonData := CheckStatusAndConvertingArticleResult(result, err, &w)
 
-			w.Write([]byte(jsonData))
+			w.Write(jsonData)
 		}
 
 		http.Error(w, "Paramater Not Correct", http.StatusBadRequest)
@@ -86,7 +93,7 @@ func ArticleHandler(w http.ResponseWriter, r *http.Request) {
 
 			jsonData := CheckStatusAndConvertingArticleResult(result, err, &w)
 
-			w.Write([]byte(jsonData))
+			w.Write(jsonData)
 		}
 
 		http.Error(w, "Paramater Not Correct", http.StatusBadRequest)
@@ -94,4 +101,10 @@ func ArticleHandler(w http.ResponseWriter, r *http.Request) {
 	default:
 		http.Error(w, "Bad Request", http.StatusBadRequest)
 	}
+}
+
+func setupCorsResponse(w *http.ResponseWriter, req *http.Request) {
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
+	(*w).Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+	(*w).Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Authorization, connection")
 }
