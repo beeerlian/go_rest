@@ -28,7 +28,7 @@ func CategoyHandler(w http.ResponseWriter, r *http.Request) {
 
 		if err != nil {
 			http.Error(w, "Cannot Get Data", http.StatusInternalServerError)
-			break
+			return
 		}
 
 		w.Write(jsonData)

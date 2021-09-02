@@ -22,8 +22,6 @@ func ArticleHandler(w http.ResponseWriter, r *http.Request) {
 		results, _ := database.ExecuteQuery("SELECT tblposts.id,tblposts.PostTitle, tblcategory.CategoryName, tblposts.PostDetails, tblposts.PostImage from tblposts JOIN tblcategory ON tblcategory.id = tblposts.CategoryId", db)
 		defer results.Close()
 		//convert *sql.Rows data to Struct
-		fmt.Print("try populating data")
-
 		postModel, _ := database.PopulateRowsToArticle(results)
 		//convert data in struct model to json
 		finalData := map[string][]entity.Article{"data": postModel}
@@ -46,7 +44,7 @@ func ArticleHandler(w http.ResponseWriter, r *http.Request) {
 
 			result, err := database.ExecuteQuery(postArticleQuery, db)
 			if err != nil {
-				break
+				return
 			}
 			defer result.Close()
 
@@ -68,7 +66,7 @@ func ArticleHandler(w http.ResponseWriter, r *http.Request) {
 
 			result, err := database.ExecuteQuery(updateQuery, db)
 			if err != nil {
-				break
+				return
 			}
 			defer result.Close()
 
@@ -87,7 +85,7 @@ func ArticleHandler(w http.ResponseWriter, r *http.Request) {
 
 			result, err := database.ExecuteQuery(updateQuery, db)
 			if err != nil {
-				break
+				return
 			}
 			defer result.Close()
 
